@@ -273,7 +273,7 @@ def helpme():
 
         unrealupdateversion     Flag if we should update the UE DefaultGame ini file's project version. True by default.
         buildconfig             Set the build config of the Unreal project (Development, DebugGame, or Shipping)
-        uatpath                 Set the user's UAT path (Typically found under 
+        uatpath                 Set the user's UAT path (Found under your UE installation > Engine > Build > BatchFiles > RunUAT.bat)
         projectname             Set the game project name (name of your .uproject file)
         projectpath             Set the game's project path (path where your .uproject file exists)
         buildpath               Set path of where to archive the packaged game (path where the build goes!)
