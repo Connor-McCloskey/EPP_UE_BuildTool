@@ -3,26 +3,33 @@ A simple Python tool to build an Unreal game
 @author Connor McCloskey
 
 Made with Python 3.12
-This assumes a Windows system, but could be easily configured for a Unix-styled terminal too
+This assumes a Windows system, but could be easily updated for Unix/Mac as well
 
-There are a few paths in the Config Vars section you need to set for your machine -> See "TODO" comment!
 
-We're also open-sourcing this script, because I hate that there's no easy info on this out there...
+Purpose: An easy-to-use script aimed at auto-updating an Unreal DefaultGame's config file version number
+and then generating a build of the specified UE project.
 
-We are combining this with updating the game version in the ini files automatically
-This can be retrieved in UE with the simple C++ code described here:
-https://forums.unrealengine.com/t/how-to-get-project-version/487787
+We're also open sourcing this script - this is a simple operation that should probably be better integrated
+into the base engine, so barring that, we've provided *some sort* of option and knowledge repo for doing so.
+
+To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the simple C++ code
+described here: https://forums.unrealengine.com/t/how-to-get-project-version/487787
+
+There are a few paths in the Vars section you need to set for your machine. See either the "Per Project"
+section under Vars or use the built-in 'helpme' command to see a list of the CLI args to do so.
+
 
 This is a great source of UAT info:
 https://github.com/botman99/ue4-unreal-automation-tool
 
+
 ### Changelog ###
-4.27.25
+4.27.25 - quick v2 additions!
 - Added various command line args for easier use
 - Updated fields to make it *very clear* what vars a user should update
 - Add some abilities to save out project-specific stuff to a settings JSON
 - Adding some type hinting, because I prefer static typing where possible...so getting there with what Python will allow!
-- Ensured set cook command is used by the build commands array
+- Ensured user-specified cook command is used by the build commands array
 - Moving stuff around so it could theoretically be started by another script...
 """
 
@@ -49,6 +56,8 @@ build_config:       str = "Development"                                 # DebugG
 platform:           str = "Win64"                                       # Desired platform
 builds_dir:         str = "D:\\MyGameProjects\\Builds\\MyGameBuilds\\"  # Directory where you wish builds to be archived at
 cook_command:       str = "BuildCookRun"                                # Specific cook command
+
+update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
 
 uat_path:           str = "C:\\Program Files\\Epic Games\\UE_5.4\\Engine\\Build\\BatchFiles\\RunUAT.bat" # Path to your Unreal Engine installation's RunUAT batch file
 #endregion
@@ -108,6 +117,10 @@ def set_cook_command(cmd: str):
 def set_platform(p: str):
     global platform
     platform = p
+
+def set_update_ue_flag(flag: bool):
+    global update_ue_config
+    update_ue_config = flag
 #endregion
 
 def make_archive_directory():
@@ -187,6 +200,7 @@ def read_settings_json():
     set_build_config(settings["buildconfig"])
     set_cook_command(settings["cookcommand"])
     set_platform(settings["platform"])
+    set_update_ue_flag(settings["unrealupdateversion"])
 
     print(">>>>> Imported settings from JSON")
 
@@ -198,7 +212,8 @@ def write_settings_json():
         "buildpath": builds_dir,
         "buildconfig": build_config,
         "cookcommand": cook_command,
-        "platform": platform
+        "platform": platform,
+        "unrealupdateversion": update_ue_config
     }
 
     json_data = json.dumps(new_settings)
@@ -209,32 +224,13 @@ def write_settings_json():
 
     print(">>>>> Wrote settings to JSON")
 
-def helpme():
-    print(    """
-    *** EPP Build Tool commands ***
-        helpme                  Prints this info. Congrats, you did it!
-        
-        updatesettingsonly      Don't run the build, just update the settings and save out to JSON. If not specified, will try to run the build process.
-                                Does not take in any additional info, and will override anything passed into a "savesettings" argument
-
-        savesettings            If true, will save out the inputted settings to JSON, which will be read in as the new defaults in the future. Defaults to false.
-        
-        buildconfig             Set the build config (dev, debuggame, shipping)
-        uatpath                 Set the user's UAT path
-        projectname             Set the game project name
-        projectpath             Set the game's project path
-        buildpath               Set path of where to archive the packaged game
-        platform                Set the platforms to build for
-        cookcommand             Specify the cook command to use
-    *******************************
-    """)
-
 def make_build():
 
-    print(">>>>> UPDATING VERSION IN CONFIG FILE...")
-    update_version()
+    if update_ue_config:
+        print(">>>>> UPDATING VERSION IN CONFIG FILE...")
+        update_version()
 
-    print(">>>>> CREATING OUTPUT DIRECTORY...")
+    print(">>>>> Creating output directory...")
     make_archive_directory()
 
     build_command = [
@@ -252,22 +248,47 @@ def make_build():
         f"-archivedirectory={archive_dir}"
     ]
 
-    print(">>>>> PACKAGING GAME...")
+    print(">>>>> Packaging game...")
     print("")
 
     try:
         result = subprocess.run(build_command, shell=True, check=True)
         print("")
         print(">>>>> PACKAGING DONE! Return code: ", result.returncode)
-        sys.exit(0)
+        exit_tool(0)
     except subprocess.CalledProcessError as e:
         print("")
         print(">>>>> PACKAGING FAILED: ", e)
         sys.exit(1)
 
-def process_args():
+def helpme():
+    print("""
+    *** EPP Build Tool commands ***
+        helpme                  Prints this info. Congrats, you did it!
 
-    print(">>>>> Processing command line arguments")
+        updatesettingsonly      Don't run the build, just update the settings and save out to JSON. If not specified, will try to run the build process.
+                                Does not take in any additional info, and will override anything passed into a "savesettings" argument
+
+        savesettings            If true, will save out the inputted settings to JSON, which will be read in as the new defaults in the future. Defaults to false.
+
+        unrealupdateversion     Flag if we should update the UE DefaultGame ini file's project version. True by default.
+        buildconfig             Set the build config of the Unreal project (Development, DebugGame, or Shipping)
+        uatpath                 Set the user's UAT path (Typically found under 
+        projectname             Set the game project name (name of your .uproject file)
+        projectpath             Set the game's project path (path where your .uproject file exists)
+        buildpath               Set path of where to archive the packaged game (path where the build goes!)
+        platform                Set the platform to build for (by default set to Win64)
+        cookcommand             Specify the cook command to use (by default uses BuildCookRun)
+    *******************************
+    """)
+
+def exit_tool(code: int):
+    print("")
+    print(">>>>>>>>>> EXITING EPP UNREAL BUILD TOOL <<<<<<<<<<")
+    print("")
+    sys.exit(code)
+
+def process_args():
 
     num_args = len(sys.argv)
 
@@ -280,15 +301,14 @@ def process_args():
     update_settings_only: bool = False
     save_settings: bool = False
 
-    # Go through the array of sys args and sort them into key-value pairs
-    # Makes it easier to just take all items in, and then ingest them in our desired order of operations...
+    # Go through the array of sys args and sort them into key-value pairs for ease-of-use
     sorted_args: dict = {}
     index = 1
     while index < num_args:
         key = sys.argv[index].lower()
         if key == "helpme":
             helpme()
-            sys.exit(0)
+            exit_tool(0)
         if key == "updatesettingsonly":
             update_settings_only = True
             save_settings = True
@@ -299,12 +319,14 @@ def process_args():
         sorted_args[key] = value
         index += 2
 
+    print(">>>>> Processing command line arguments")
+
     # Now, go through any settings that were passed in and update them
 
     # Determine if we should save settings
     if update_settings_only == False and "savesettings" in sorted_args:
         v = sorted_args["savesettings"]
-        if v.tolower() == "true":
+        if v.lower() == "true":
             save_settings = True
 
     # Set project name
@@ -349,12 +371,17 @@ def process_args():
         v = sorted_args["platform"]
         set_platform(v)
 
-    # Now, if we were told to only update the settings, return and exit
-    # Else, make the build!
+    # Flag for updating UE config file
+    if "unrealupdateversion" in sorted_args:
+        v = sorted_args["unrealupdateversion"]
+        if v.lower() == "false":
+            set_update_ue_flag(False)
+
+    # Now, if we were told to only update the settings, return and exit. Else, make the build!
     if update_settings_only:
         write_settings_json()
-        print(">>>>> Settings update complete. Exiting.")
-        sys.exit(0)
+        print(">>>>> Settings update complete")
+        exit_tool(0)
     else:
         if save_settings:
             write_settings_json()
@@ -362,7 +389,9 @@ def process_args():
 
 def start_tool():
 
+    print("")
     print(">>>>>>>>>> RUNNING EPP UNREAL BUILD TOOL <<<<<<<<<<")
+    print("")
 
     read_settings_json()
     process_args()
