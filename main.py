@@ -132,9 +132,14 @@ def update_version():
 
 def main():
 
+    print("UPDATING VERSION...")
     update_version()
 
+    print("CREATING BUILD DIRECTORY...")
     make_archive_directory()
+
+    # if True:
+        # return
 
     build_command = [
         uat_path,
@@ -161,5 +166,5 @@ def main():
         print("Packaging failed: ", e)
         sys.exit(1)
 
-if __name__ == "main":
+if __name__ == "__main__":
     main()
