@@ -259,7 +259,7 @@ def make_build():
     except subprocess.CalledProcessError as e:
         print("")
         print(">>>>> PACKAGING FAILED: ", e)
-        sys.exit(1)
+        exit_tool(1)
 
 def helpme():
     print("""
