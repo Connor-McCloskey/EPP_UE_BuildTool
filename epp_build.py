@@ -339,11 +339,28 @@ def process_args():
     update_settings_only: bool = False
     save_settings: bool = False
 
+    valid_args = [
+        "helpme",
+        "updatesettingsonly",
+        "savesettings",
+        "updategame",
+        "buildconfig",
+        "enginepath",
+        "projectname",
+        "projectpath",
+        "buildpath",
+        "platform",
+        "cookcommand"
+    ]
+
     # Go through the array of sys args and sort them into key-value pairs for ease-of-use
     sorted_args: dict = {}
     index = 1
     while index < num_args - 1:
         key = sys.argv[index].lower()
+        if key not in valid_args:
+            print("!!! WARNING !!! Invalid argument! Use 'helpme' for a list of all valid commands!")
+            exit_tool(0)
         if key == "helpme":
             helpme()
             exit_tool(0)
