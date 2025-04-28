@@ -57,10 +57,8 @@ build_config:       str = "Development"                                 # DebugG
 platform:           str = "Win64"                                       # Desired platform
 builds_dir:         str = "D:\\MyGameProjects\\Builds\\MyGameBuilds\\"  # Directory where you wish builds to be archived at
 cook_command:       str = "BuildCookRun"                                # Specific cook command
-
+engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
-
-uat_path:           str = "C:\\Program Files\\Epic Games\\UE_5.4\\Engine\\Build\\BatchFiles\\RunUAT.bat" # Path to your Unreal Engine installation's RunUAT batch file
 
 #endregion
 
@@ -68,11 +66,13 @@ uat_path:           str = "C:\\Program Files\\Epic Games\\UE_5.4\\Engine\\Build\
 
 new_version:        str = ""    # New version name
 archive_dir:        str = ""    # Generated directory where the packaged project should be placed
+uat_path:           str = ""    # Generated path to the RunUAT batch file
 
 #endregion
 
 #region - Constants -
 
+uat_path_base:      str = "\\Engine\\Build\\BatchFiles\\RunUAT.bat"         # Path to your Unreal Engine installation's RunUAT batch file
 version_section:    str = "/Script/EngineSettings.GeneralProjectSettings"   # Game version section in UE DefaultGame config file
 build_config_name:  dict = {
     "Development":  "dev",
@@ -101,10 +101,6 @@ def set_project_name(name: str):
     global project_name
     project_name = name
 
-def set_uat_path(path: str):
-    global uat_path
-    uat_path = path
-
 def set_build_path(path: str):
     global builds_dir
     builds_dir = path
@@ -121,6 +117,11 @@ def set_platform(p: str):
     global platform
     platform = p
 
+def set_engine_path(path: str):
+    global engine_path
+    engine_path = path
+    construct_uat_path()
+
 def set_update_ue_flag(flag: bool):
     global update_ue_config
     update_ue_config = flag
@@ -134,6 +135,10 @@ def print_settings():
     print(">> Set cook command:        ", cook_command)
     print(">> Set platform:            ", platform)
     print(">> Update UE config file?   ", update_ue_config)
+
+def construct_uat_path():
+    global uat_path
+    uat_path = os.path.join(engine_path, uat_path_base)
 #endregion
 
 #region - Process funcs -
@@ -218,6 +223,7 @@ def read_settings_json():
 
     if not os.path.exists(settings_file_name):
         print(">>>>> No settings file found, using script defaults")
+        construct_uat_path()
         return
 
     file = open(settings_file_name, "r")
@@ -226,7 +232,7 @@ def read_settings_json():
 
     set_project_path(settings["projectpath"])
     set_project_name(settings["projectname"])
-    set_uat_path(settings["uatpath"])
+    set_engine_path(settings["enginepath"])
     set_build_path(settings["buildpath"])
     set_build_config(settings["buildconfig"])
     set_cook_command(settings["cookcommand"])
@@ -241,7 +247,7 @@ def write_settings_json():
     new_settings = {
         "projectpath": project_path,
         "projectname": project_name,
-        "uatpath": uat_path,
+        "engine": engine_path,
         "buildpath": builds_dir,
         "buildconfig": build_config,
         "cookcommand": cook_command,
@@ -306,7 +312,7 @@ def helpme():
 
         unrealupdateversion     Flag if we should update the UE DefaultGame ini file's project version. True by default.
         buildconfig             Set the build config of the Unreal project (Development, DebugGame, or Shipping)
-        uatpath                 Set the user's UAT path (Found under your UE installation > Engine > Build > BatchFiles > RunUAT.bat)
+        enginepath              Set the path to your Unreal Engine install
         projectname             Set the game project name (name of your .uproject file)
         projectpath             Set the game's project path (path where your .uproject file exists)
         buildpath               Set path of where to archive the packaged game (path where the build goes!)
@@ -374,9 +380,9 @@ def process_args():
         set_project_path(v)
 
     # Set UAT path
-    if "uatpath" in sorted_args:
-        v = sorted_args["uatpath"]
-        set_uat_path(v)
+    if "enginepath" in sorted_args:
+        v = sorted_args["enginepath"]
+        set_engine_path(v)
 
     # Set build path
     if "buildpath" in sorted_args:
