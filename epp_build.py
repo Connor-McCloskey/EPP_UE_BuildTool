@@ -53,11 +53,11 @@ from datetime import datetime
 
 project_name:       str = "MyGame"                                      # Uproject file name
 project_path:       str = "D:\\MyGameProjects\\MyGame"                  # Path to the project file
+builds_path:        str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
+engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 build_config:       str = "Development"                                 # DebugGame, Development, Shipping # Desired build config
 platform:           str = "Win64"                                       # Desired platform
-builds_dir:         str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
 cook_command:       str = "BuildCookRun"                                # Specific cook command
-engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
 
 #endregion
@@ -65,7 +65,7 @@ update_ue_config:   bool = True                                         # Specif
 #region - Generated -
 
 new_version:        str = ""    # New version name
-archive_dir:        str = ""    # Generated directory where the packaged project should be placed
+archive_path:       str = ""    # Generated directory where the packaged project should be placed
 uat_path:           str = ""    # Generated path to the RunUAT batch file
 
 #endregion
@@ -102,8 +102,8 @@ def set_project_name(name: str):
     project_name = name
 
 def set_build_path(path: str):
-    global builds_dir
-    builds_dir = path
+    global builds_path
+    builds_path = path
 
 def set_build_config(build_type: str):
     global build_config
@@ -130,7 +130,7 @@ def print_settings():
     print(">> Set project name:        ", project_name)
     print(">> Set project path:        ", project_path)
     print(">> Set UAT path:            ", uat_path)
-    print(">> Set builds directory to: ", builds_dir)
+    print(">> Set build path to:       ", builds_path)
     print(">> Set build configuration: ", build_config)
     print(">> Set cook command:        ", cook_command)
     print(">> Set platform:            ", platform)
@@ -142,14 +142,14 @@ def construct_uat_path():
 #endregion
 
 #region - Process funcs -
-def make_archive_directory():
+def make_archive_path():
     print("")
-    print(">>>>> Creating output directory...")
+    print(">>>>> Creating archive directory...")
 
-    global archive_dir
+    global archive_path
 
-    new_directory = os.path.join(builds_dir, new_version)
-    archive_dir = new_directory
+    new_directory = os.path.join(builds_path, new_version)
+    archive_path = new_directory
     if os.path.exists(new_directory):
         print(">> Directory already exists, early returning...")
         return
@@ -247,7 +247,7 @@ def write_settings_json():
         "projectpath": project_path,
         "projectname": project_name,
         "engine": engine_path,
-        "buildpath": builds_dir,
+        "buildpath": builds_path,
         "buildconfig": build_config,
         "cookcommand": cook_command,
         "platform": platform,
@@ -268,7 +268,7 @@ def make_build():
     if update_ue_config:
         update_version()
 
-    make_archive_directory()
+    make_archive_path()
 
     build_command = [
         uat_path,
@@ -282,7 +282,7 @@ def make_build():
         "-stage",
         "-pak",
         "-archive",
-        f"-archivedirectory={archive_dir}"
+        f"-archivedirectory={archive_path}"
     ]
 
     print("")
