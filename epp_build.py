@@ -6,7 +6,7 @@ Made with Python 3.12
 This assumes a Windows system, but could be easily updated for Unix/Mac as well
 
 
-Purpose: An easy-to-use script aimed at auto-updating an Unreal DefaultGame's config file version number
+Purpose: An easy-to-use script aimed at auto-updating an Unreal DefaultGame version number field
 and then generating a build of the specified UE project.
 
 We're also open sourcing this script - this is a simple operation that should probably be better integrated
@@ -236,7 +236,7 @@ def read_settings_json():
     set_build_config(settings["buildconfig"])
     set_cook_command(settings["cookcommand"])
     set_platform(settings["platform"])
-    set_update_ue_flag(settings["unrealupdateversion"])
+    set_update_ue_flag(settings["updategame"])
 
 def write_settings_json():
 
@@ -251,7 +251,7 @@ def write_settings_json():
         "buildconfig": build_config,
         "cookcommand": cook_command,
         "platform": platform,
-        "unrealupdateversion": update_ue_config
+        "updategame": update_ue_config
     }
 
     json_data = json.dumps(new_settings)
@@ -309,7 +309,7 @@ def helpme():
 
         savesettings            If true, will save out the inputted settings to JSON, which will be read in as the new defaults in the future. Defaults to false.
 
-        unrealupdateversion     Flag if we should update the UE DefaultGame ini file's project version. True by default.
+        updategame              Flag if we should update the UE DefaultGame ini file's project version. True by default.
         buildconfig             Set the build config of the Unreal project (Development, DebugGame, or Shipping)
         enginepath              Set the path to your Unreal Engine install
         projectname             Set the game project name (name of your .uproject file)
@@ -411,8 +411,8 @@ def process_args():
         set_platform(v)
 
     # Flag for updating UE config file
-    if "unrealupdateversion" in sorted_args:
-        v = sorted_args["unrealupdateversion"]
+    if "updategame" in sorted_args:
+        v = sorted_args["updategame"]
         if v.lower() == "false":
             set_update_ue_flag(False)
 
@@ -433,11 +433,10 @@ def process_args():
             write_settings_json()
             print("")
             print("** Updated build settings **")
-            print_settings()
         else:
             print("")
             print("** Build Settings **")
-            print_settings()
+        print_settings()
         make_build()
 
 def start_tool():
