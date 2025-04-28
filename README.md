@@ -15,10 +15,16 @@ We're also open sourcing this script - this is a simple operation that should pr
 
 To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the simple C++ code described here: https://forums.unrealengine.com/t/how-to-get-project-version/487787
 
-There are a few variables you need to set to use this tool properly. See either the "Per Project" section in the Python file or use the built-in `helpme` command line argument to see a list of the additional arguments to do so and the settings they change.
-
 This is a great source for additional Unreal Automation Tool info: https://github.com/botman99/ue4-unreal-automation-tool
 
+## Setup
+There are a few variables you need to set to use this tool properly. See either the "Per Project" section in the Python file or use the built-in `helpme` command line argument to see a list of the additional arguments to do so and the settings they change.
+
+At minimum, you will need to set these command line arguments:
+* `enginepath`
+* `projectname`
+* `projectpath`
+* `buildpath`
 
 ## Build Naming Convention
 Evil Pear Productions uses a standardized versioning name convention:
