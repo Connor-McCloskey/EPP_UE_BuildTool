@@ -217,7 +217,7 @@ def write_settings_json():
     new_settings = {
         "projectpath": project_path,
         "projectname": project_name,
-        "engine": engine_path,
+        "enginepath": engine_path,
         "buildpath": builds_path,
         "buildconfig": build_config,
         "cookcommand": cook_command,
