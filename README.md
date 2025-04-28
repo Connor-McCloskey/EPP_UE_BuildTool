@@ -9,7 +9,7 @@ This assumes a Windows system, but could be easily updated for Unix/Mac as well.
 
 
 ## About
-An easy-to-use script aimed at auto-updating an Unreal DefaultGame version number field and then generating a build of the specified UE project.
+An easy-to-use script aimed at auto-updating an Unreal `DefaultGame.ini` version number field and then generating a build of the specified UE project.
 
 We're also open sourcing this script - this is a simple operation that should probably be better integrated into the base engine, so barring that, we've provided *some sort* of option and knowledge repo for doing so.
 
@@ -17,8 +17,7 @@ To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the 
 
 There are a few paths in the Vars section you need to set for your machine. See either the "Per Project" section under Vars or use the built-in 'helpme' command to see a list of the CLI args to do so.
 
-This is a great source for additional UAT info:
-https://github.com/botman99/ue4-unreal-automation-tool
+This is a great source for additional UAT info: https://github.com/botman99/ue4-unreal-automation-tool
 
 
 ## Build Naming Convention
