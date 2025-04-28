@@ -55,7 +55,7 @@ project_name:       str = "MyGame"                                      # Uproje
 project_path:       str = "D:\\MyGameProjects\\MyGame"                  # Path to the project file
 build_config:       str = "Development"                                 # DebugGame, Development, Shipping # Desired build config
 platform:           str = "Win64"                                       # Desired platform
-builds_dir:         str = "D:\\MyGameProjects\\Builds\\MyGameBuilds\\"  # Directory where you wish builds to be archived at
+builds_dir:         str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"  # Directory where you wish builds to be archived at
 cook_command:       str = "BuildCookRun"                                # Specific cook command
 engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
@@ -72,7 +72,7 @@ uat_path:           str = ""    # Generated path to the RunUAT batch file
 
 #region - Constants -
 
-uat_path_base:      str = "\\Engine\\Build\\BatchFiles\\RunUAT.bat"         # Path to your Unreal Engine installation's RunUAT batch file
+uat_path_base:      str = "Engine\\Build\\BatchFiles\\RunUAT.bat"         # Path to your Unreal Engine installation's RunUAT batch file
 version_section:    str = "/Script/EngineSettings.GeneralProjectSettings"   # Game version section in UE DefaultGame config file
 build_config_name:  dict = {
     "Development":  "dev",
