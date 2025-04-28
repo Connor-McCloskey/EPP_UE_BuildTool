@@ -61,6 +61,7 @@ cook_command:       str = "BuildCookRun"                                # Specif
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
 
 uat_path:           str = "C:\\Program Files\\Epic Games\\UE_5.4\\Engine\\Build\\BatchFiles\\RunUAT.bat" # Path to your Unreal Engine installation's RunUAT batch file
+
 #endregion
 
 #region - Generated -
@@ -336,7 +337,7 @@ def process_args():
     # Go through the array of sys args and sort them into key-value pairs for ease-of-use
     sorted_args: dict = {}
     index = 1
-    while index < num_args:
+    while index < num_args - 1:
         key = sys.argv[index].lower()
         if key == "helpme":
             helpme()
@@ -347,15 +348,12 @@ def process_args():
             sorted_args[key] = "True" # Do this just to follow the format
             index += 1
             continue
-        if index + 1 >= num_args:
-            break
         value = sys.argv[index + 1]
         sorted_args[key] = value
         index += 2
 
     print("")
     print(">>>>> Processing command line arguments")
-    # print(sorted_args)
 
     # Now, go through any settings that were passed in and update them
 
