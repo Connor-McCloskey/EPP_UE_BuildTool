@@ -149,12 +149,11 @@ def make_archive_directory():
     global archive_dir
 
     new_directory = os.path.join(builds_dir, new_version)
+    archive_dir = new_directory
     if os.path.exists(new_directory):
         print(">> Directory already exists, early returning...")
         return
     os.mkdir(new_directory)
-
-    archive_dir = new_directory
 
 def save_config(config, config_path):
     with open(config_path, 'w') as configfile:
