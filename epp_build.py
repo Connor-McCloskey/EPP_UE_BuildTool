@@ -156,8 +156,8 @@ def make_archive_directory():
     os.mkdir(new_directory)
 
 def save_config(config, config_path):
-    with open(config_path, 'w') as configfile:
-        config.write(configfile)
+    configfile = open(config_path, 'w')
+    config.write(configfile)
     configfile.close()
 
 def update_version():
