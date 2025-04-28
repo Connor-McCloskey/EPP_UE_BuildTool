@@ -26,6 +26,8 @@ At minimum, you will need to set these command line arguments:
 * `projectpath`
 * `buildpath`
 
+To save your settings for future uses of the tool, use the command line argument `savesettings true` to generate a JSON file containing all of your settings.
+
 ## Build Naming Convention
 Evil Pear Productions uses a standardized versioning name convention:
 
