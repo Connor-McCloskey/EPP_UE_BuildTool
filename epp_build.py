@@ -428,8 +428,13 @@ def process_args():
     else:
         if save_settings:
             write_settings_json()
-        print("** Build Settings **")
-        print_settings()
+            print("")
+            print("** Updated build settings **")
+            print_settings()
+        else:
+            print("")
+            print("** Build Settings **")
+            print_settings()
         make_build()
 
 def start_tool():
