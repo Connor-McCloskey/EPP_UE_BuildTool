@@ -1,6 +1,6 @@
 """
 A simple Python tool to build an Unreal game
-@author Connor McCloskey
+@author Connor McCloskey, Evil Pear Productions
 
 Made with Python 3.12
 This assumes a Windows system, but could be easily updated for Unix/Mac as well
