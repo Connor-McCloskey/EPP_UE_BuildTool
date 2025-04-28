@@ -11,7 +11,7 @@ This assumes a Windows system, but could be easily updated for Unix/Mac as well.
 ## About
 An easy-to-use script aimed at auto-updating an Unreal `DefaultGame.ini` version number field and then generating a build of the specified UE project.
 
-We're also open sourcing this script - this is a simple operation that should probably be better integrated into the base engine, so barring that, we've provided *some sort* of option and knowledge repo for doing so.
+We're also open sourcing this script - this is a simple operation that should probably be better integrated into the base engine, so barring engine feature updates to enable that, we've provided *some sort* of option and knowledge repo for doing so.
 
 To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the simple C++ code described here: https://forums.unrealengine.com/t/how-to-get-project-version/487787
 
