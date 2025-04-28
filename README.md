@@ -15,7 +15,7 @@ We're also open sourcing this script - this is a simple operation that should pr
 
 To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the simple C++ code described here: https://forums.unrealengine.com/t/how-to-get-project-version/487787
 
-There are a few paths in the Vars section you need to set for your machine. See either the "Per Project" section under Vars or use the built-in 'helpme' command to see a list of the CLI args to do so.
+There are a few path variables you need to set for your machine. See either the "Per Project" section in the Python file or use the built-in `helpme` command to see a list of the CLI args to do so.
 
 This is a great source for additional UAT info: https://github.com/botman99/ue4-unreal-automation-tool
 
