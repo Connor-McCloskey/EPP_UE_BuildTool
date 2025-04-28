@@ -1,37 +1,8 @@
 """
-A simple Python tool to build an Unreal game
-@author Connor McCloskey, Evil Pear Productions
+Evil Pear Productions Unreal Build Tool
+@author Connor McCloskey
 
-Made with Python 3.12
-This assumes a Windows system, but could be easily updated for Unix/Mac as well
-
-
-Purpose: An easy-to-use script aimed at auto-updating an Unreal DefaultGame version number field
-and then generating a build of the specified UE project.
-
-We're also open sourcing this script - this is a simple operation that should probably be better integrated
-into the base engine, so barring that, we've provided *some sort* of option and knowledge repo for doing so.
-
-To use the ini file's ProjectVersion field from C++ or Blueprints, refer to the simple C++ code
-described here: https://forums.unrealengine.com/t/how-to-get-project-version/487787
-
-There are a few paths in the Vars section you need to set for your machine. See either the "Per Project"
-section under Vars or use the built-in 'helpme' command to see a list of the CLI args to do so.
-
-
-This is a great source of UAT info:
-https://github.com/botman99/ue4-unreal-automation-tool
-
-
-### Changelog ###
-4.27.25 - v2!
-- Added various command line args for easier use
-- Updated fields to make it *very clear* what vars a user should update
-- Add some abilities to save out project-specific stuff to a settings JSON
-- Adding some type hinting, because I prefer static typing where possible...so getting there with what Python will allow!
-- Ensured user-specified cook command is used by the build commands array
-- Moving stuff around so it could theoretically be started by another script...
-- Bug fixes and formatting
+See the ReadMe for full information.
 """
 
 #region --- Imports ---
