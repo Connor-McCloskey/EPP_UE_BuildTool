@@ -24,13 +24,14 @@ https://github.com/botman99/ue4-unreal-automation-tool
 
 
 ### Changelog ###
-4.27.25 - quick v2 additions!
+4.27.25 - v2!
 - Added various command line args for easier use
 - Updated fields to make it *very clear* what vars a user should update
 - Add some abilities to save out project-specific stuff to a settings JSON
 - Adding some type hinting, because I prefer static typing where possible...so getting there with what Python will allow!
 - Ensured user-specified cook command is used by the build commands array
 - Moving stuff around so it could theoretically be started by another script...
+- Bug fixes and formatting
 """
 
 #region --- Imports ---
@@ -89,6 +90,7 @@ settings_file_name: str = "settings.json"
 def set_new_version(v: str):
     global new_version
     new_version = v
+    print(">> New version number:      ", v)
 
 def set_project_path(path: str):
     global project_path
@@ -121,12 +123,29 @@ def set_platform(p: str):
 def set_update_ue_flag(flag: bool):
     global update_ue_config
     update_ue_config = flag
+
+def print_settings():
+    print(">> Set project name:        ", project_name)
+    print(">> Set project path:        ", project_path)
+    print(">> Set UAT path:            ", uat_path)
+    print(">> Set builds directory to: ", builds_dir)
+    print(">> Set build configuration: ", build_config)
+    print(">> Set cook command:        ", cook_command)
+    print(">> Set platform:            ", platform)
+    print(">> Update UE config file?   ", update_ue_config)
 #endregion
 
+#region - Process funcs -
 def make_archive_directory():
+    print("")
+    print(">>>>> Creating output directory...")
+
     global archive_dir
 
     new_directory = os.path.join(builds_dir, new_version)
+    if os.path.exists(new_directory):
+        print(">> Directory already exists, early returning...")
+        return
     os.mkdir(new_directory)
 
     archive_dir = new_directory
@@ -148,11 +167,20 @@ def update_version():
 
     # If you/your team use a different standard, feel free to update this as needed!
 
+    print("")
+    print(">>>>> Updating Unreal DefaultGame config file...")
+
     build_date = datetime.today().strftime('%m%d%y')
 
     config = configparser.ConfigParser(strict=False)
     config_file_path = os.path.join(project_path, "Config\\DefaultGame.ini")
+
+    if not os.path.exists(config_file_path):
+        print("!! WARNING !! COULD NOT FIND CONFIG FILE! Path: ", config_file_path)
+        exit_tool(1)
+
     config.read(config_file_path)
+
     build = build_config_name[build_config]
     version = ""
 
@@ -185,8 +213,10 @@ def update_version():
 
 def read_settings_json():
 
+    print(">>>>> Importing settings from JSON")
+
     if not os.path.exists(settings_file_name):
-        print(">>>>> No settings file found. Using script defaults.")
+        print(">>>>> No settings file found, using script defaults")
         return
 
     file = open(settings_file_name, "r")
@@ -202,9 +232,11 @@ def read_settings_json():
     set_platform(settings["platform"])
     set_update_ue_flag(settings["unrealupdateversion"])
 
-    print(">>>>> Imported settings from JSON")
-
 def write_settings_json():
+
+    print("")
+    print(">>>>> Writing settings to JSON")
+
     new_settings = {
         "projectpath": project_path,
         "projectname": project_name,
@@ -222,15 +254,14 @@ def write_settings_json():
     file.write(json_data)
     file.close()
 
-    print(">>>>> Wrote settings to JSON")
-
 def make_build():
 
+    print("")
+    print(">>>>> Starting build process")
+
     if update_ue_config:
-        print(">>>>> UPDATING VERSION IN CONFIG FILE...")
         update_version()
 
-    print(">>>>> Creating output directory...")
     make_archive_directory()
 
     build_command = [
@@ -248,6 +279,7 @@ def make_build():
         f"-archivedirectory={archive_dir}"
     ]
 
+    print("")
     print(">>>>> Packaging game...")
     print("")
 
@@ -315,11 +347,15 @@ def process_args():
             sorted_args[key] = "True" # Do this just to follow the format
             index += 1
             continue
+        if index + 1 >= num_args:
+            break
         value = sys.argv[index + 1]
         sorted_args[key] = value
         index += 2
 
+    print("")
     print(">>>>> Processing command line arguments")
+    # print(sorted_args)
 
     # Now, go through any settings that were passed in and update them
 
@@ -347,14 +383,14 @@ def process_args():
     # Set build path
     if "buildpath" in sorted_args:
         v = sorted_args["buildpath"]
-        set_project_path(v)
+        set_build_path(v)
 
     # Set build config
     if "buildconfig" in sorted_args:
-        v = sorted_args["buildpath"].lower()
+        v = sorted_args["buildconfig"].lower()
         if v == "dev" or v == "development":
             set_build_config("Development")
-        elif v == "debug" or "debuggame":
+        elif v == "debug" or v == "debuggame":
             set_build_config("DebugGame")
         elif v == "shipping":
             set_build_config("Shipping")
@@ -380,11 +416,20 @@ def process_args():
     # Now, if we were told to only update the settings, return and exit. Else, make the build!
     if update_settings_only:
         write_settings_json()
+
+        print("")
+        print("** Updated settings **")
+        print_settings()
+
+        print("")
         print(">>>>> Settings update complete")
+
         exit_tool(0)
     else:
         if save_settings:
             write_settings_json()
+        print("** Build Settings **")
+        print_settings()
         make_build()
 
 def start_tool():
@@ -395,6 +440,8 @@ def start_tool():
 
     read_settings_json()
     process_args()
+#endregion
+
 #endregion
 
 #region --- Main ---
