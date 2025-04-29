@@ -56,6 +56,164 @@ settings_file_name: str = "settings.json"
 
 #endregion
 
+#region --- Class ---
+
+### VERY basic class for manually parsing an Unreal config file, because of course, why would we follow ini standards???
+class UnrealConfig:
+
+    sections:           dict = {}
+    all_option_keys:    list = []
+    path:               str = ""
+
+    ### Goes through the option and gets it to copy EXACTLY as it would be from the UE file...
+    ### We want to make sure we don't cause more source control changes than needed
+    def parse_option(self, line):
+
+        delimit = line.split("=", 1)
+
+        key = delimit[0]
+
+        key = key.rstrip()
+        self.all_option_keys.append(key)
+
+        value = delimit[1]
+
+        # Unreal has very inconsistent formatting for its ini file
+        # Namely, so things have spaces between the assignment op and some don't
+        # This var, t, emulates that (t for type...blegh)
+        # if t == "=", then there should be NO space between the assignment op
+        # if t == " ", then there SHOULD be
+        t = "="
+
+        if value != "" and value[0] == " ":
+            t = " "
+            value = value.lstrip()
+            value = value.rstrip()
+
+        if value == "":
+            k = delimit[0]
+            len_k = len(k)
+            if k[len_k - 1] == " ":
+                t = " "
+
+        return [key, value, t]
+
+    def parse_file(self, filepath):
+        file = open(filepath, 'r')
+        config_lines = file.readlines()
+        file.close()
+
+        self.path = filepath
+
+        current_section = ""
+
+        for index in range(0, len(config_lines)):
+            line = config_lines[index].strip()
+            if line == "":
+                continue
+            if line.startswith('[') and line.endswith(']'):
+                current_section = line
+                self.sections[current_section] = []
+            else:
+                if current_section == "":
+                    continue
+                opt = self.parse_option(line)
+                self.sections[current_section].append(opt)
+
+    def has_section(self, section):
+        if section in self.sections:
+            return True
+        return False
+
+    def has_option(self, section, option):
+        section = self.sanitize_section(section)
+        if section in self.sections:
+            options = self.sections[section]
+            for opt in options:
+                key = opt[0]
+                if key == option:
+                    return True
+        return False
+
+    def has_option_anywhere(self, option):
+        if option in self.all_option_keys:
+            return True
+        return False
+
+    def update_option(self, section, option, new_value):
+        section = self.sanitize_section(section)
+        options = self.sections[section]
+        for opts in options:
+            key = opts[0]
+            if key == option:
+                opts[1] = new_value
+
+    def add_option(self, section, option):
+        section = self.sanitize_section(section)
+        self.sections[section].append(option)
+
+    def get_option_value(self, section, option):
+        section = self.sanitize_section(section)
+        if self.has_option(section, option):
+            options = self.sections[section]
+            for opt in options:
+                key = opt[0]
+                if key == option:
+                    value = opt[1]
+                    return value
+        return ""
+
+    def sanitize_section(self, section):
+        r = section[0]
+        l = section[len(section) - 1]
+        if r != "[":
+            section = "[" + section
+        if l != "]":
+            section = section + "]"
+        return section
+
+    def update_file(self):
+        file = open(self.path, 'w')
+        for key in self.sections:
+            file.write(key + "\n")
+            options = self.sections[key]
+            for opt in options:
+                print("Writing opt: ", opt)
+                end = len(opt) - 1
+                t = opt[end]
+                if t == "=":
+                    k = opt[0]
+                    v = opt[1]
+                    line = k + "=" + v + "\n"
+                    file.write(line)
+                else:
+                    k = opt[0]
+                    v = opt[1]
+                    line = k + " = " + v + "\n"
+                    file.write(line)
+            file.write("\n")
+        file.close()
+
+    def display(self):
+        print("")
+        for key in self.sections:
+            print(key)
+            options = self.sections[key]
+            for opt in options:
+                end = len(opt) - 1
+                delimiter = opt[end]
+                if delimiter == "=":
+                    k = opt[0]
+                    v = opt[1]
+                    print(k + "=" + v)
+                else:
+                    k = opt[0]
+                    v = opt[1]
+                    print(k + " = " + v)
+            print("")
+
+#endregion
+
 #region --- Functions ---
 
 #region - Set script global vars -
@@ -148,44 +306,41 @@ def update_version():
 
     build_date = datetime.today().strftime('%m%d%y')
 
-    config = configparser.ConfigParser(strict=False)
     config_file_path = os.path.join(project_path, "Config\\DefaultGame.ini")
 
     if not os.path.exists(config_file_path):
         print("!! WARNING !! COULD NOT FIND CONFIG FILE! Path: ", config_file_path)
         exit_tool(1)
 
-    config.read(config_file_path)
-
     build = build_config_name[build_config]
     version = ""
 
-    # Check to see if this section exists or not
-    # If so, we can grab it and try to update it
-    if config.has_option(version_section,"ProjectVersion"):
-        # Retrieve the data of the last version built, according to the config file
-        last_version = config.get(version_section, "ProjectVersion")
+    config = UnrealConfig()
+    config.parse_file(config_file_path)
 
-        split = last_version.split("_") # Returns 3 elements
+    # Check to see if option exists or not
+    if config.has_option(version_section, "ProjectVersion"):
+        last_version = config.get_option_value(version_section, "ProjectVersion")
+        split = last_version.split("_")  # Returns 3 elements
         last_build_date = split[0]
 
         # If the dates don't match, we just start at '001'
         if last_build_date != build_date:
             version = build_date + "_" + build + "_001"
-            config.set(version_section, "ProjectVersion", version)
-        # If they do match, we can update it!
+            config.update_option(version_section, "ProjectVersion", version)
         else:
             new_build_int = int(split[2]) + 1
             new_build_formatted = "{:03d}".format(new_build_int)
             version = build_date + "_" + build + "_" + new_build_formatted
-            config.set(version_section, "ProjectVersion", version)
-    # If not, create it
+            config.update_option(version_section, "ProjectVersion", version)
     else:
         version = build_date + "_" + build + "_001"
-        config.set(version_section, "ProjectVersion", version)
+        config.add_option(version_section, ["ProjectVersion", version, "="])
 
-    save_config(config, config_file_path)
+    config.update_file()
     set_new_version(version)
+
+    exit_tool(0)
 
 def read_settings_json():
 
