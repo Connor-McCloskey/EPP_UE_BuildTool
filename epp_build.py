@@ -79,10 +79,11 @@ class UnrealConfig:
         value = delimit[1]
 
         # Unreal has very inconsistent formatting for its ini file
-        # Namely, so things have spaces between the assignment op and some don't
+        # Namely, some things have spaces between the assignment op and some don't
         # This var, t, emulates that (t for type...blegh)
         # if t == "=", then there should be NO space between the assignment op
         # if t == " ", then there SHOULD be
+        # Is this terrible? Yes, but I don't care right now.
         t = "="
 
         if value != "" and value[0] == " ":
@@ -178,7 +179,6 @@ class UnrealConfig:
             file.write(key + "\n")
             options = self.sections[key]
             for opt in options:
-                print("Writing opt: ", opt)
                 end = len(opt) - 1
                 t = opt[end]
                 if t == "=":
@@ -339,8 +339,6 @@ def update_version():
 
     config.update_file()
     set_new_version(version)
-
-    exit_tool(0)
 
 def read_settings_json():
 
