@@ -71,8 +71,12 @@ class UnrealConfig:
         delimit = line.split("=", 1)
 
         key = delimit[0]
+        key = key.lstrip()
+        key = key.rstrip()
         self.all_option_keys.append(key)
         value = delimit[1]
+        value = value.rstrip()
+        value = value.lstrip()
 
         return [key, value]
 
@@ -152,6 +156,7 @@ class UnrealConfig:
 
     def update_file(self):
         file = open(self.path, 'w')
+        # file = open("text.txt", "w")
         for key in self.sections:
             file.write(key + "\n")
             options = self.sections[key]
@@ -171,7 +176,7 @@ class UnrealConfig:
             for opt in options:
                 k = opt[0]
                 v = opt[1]
-                line = k + "=" + v + "\n"
+                line = k + "=" + v
                 print(line)
             print("")
 
@@ -298,7 +303,7 @@ def update_version():
             config.update_option(version_section, "ProjectVersion", version)
     else:
         version = build_date + "_" + build + "_001"
-        config.add_option(version_section, ["ProjectVersion", version, "="])
+        config.add_option(version_section, ["ProjectVersion", version])
 
     config.update_file()
     set_new_version(version)
