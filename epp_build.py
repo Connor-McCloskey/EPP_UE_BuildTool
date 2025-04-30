@@ -68,36 +68,13 @@ class UnrealConfig:
     ### Goes through the option and gets it to copy EXACTLY as it would be from the UE file...
     ### We want to make sure we don't cause more source control changes than needed
     def parse_option(self, line):
-
         delimit = line.split("=", 1)
 
         key = delimit[0]
-
-        key = key.rstrip()
         self.all_option_keys.append(key)
-
         value = delimit[1]
 
-        # Unreal has very inconsistent formatting for its ini file
-        # Namely, some things have spaces between the assignment op and some don't
-        # This var, t, emulates that (t for type...blegh)
-        # if t == "=", then there should be NO space between the assignment op
-        # if t == " ", then there SHOULD be
-        # Is this terrible? Yes, but I don't care right now.
-        t = "="
-
-        if value != "" and value[0] == " ":
-            t = " "
-            value = value.lstrip()
-            value = value.rstrip()
-
-        if value == "":
-            k = delimit[0]
-            len_k = len(k)
-            if k[len_k - 1] == " ":
-                t = " "
-
-        return [key, value, t]
+        return [key, value]
 
     def parse_file(self, filepath):
         file = open(filepath, 'r')
@@ -179,18 +156,10 @@ class UnrealConfig:
             file.write(key + "\n")
             options = self.sections[key]
             for opt in options:
-                end = len(opt) - 1
-                t = opt[end]
-                if t == "=":
-                    k = opt[0]
-                    v = opt[1]
-                    line = k + "=" + v + "\n"
-                    file.write(line)
-                else:
-                    k = opt[0]
-                    v = opt[1]
-                    line = k + " = " + v + "\n"
-                    file.write(line)
+                k = opt[0]
+                v = opt[1]
+                line = k + "=" + v + "\n"
+                file.write(line)
             file.write("\n")
         file.close()
 
@@ -200,16 +169,10 @@ class UnrealConfig:
             print(key)
             options = self.sections[key]
             for opt in options:
-                end = len(opt) - 1
-                delimiter = opt[end]
-                if delimiter == "=":
-                    k = opt[0]
-                    v = opt[1]
-                    print(k + "=" + v)
-                else:
-                    k = opt[0]
-                    v = opt[1]
-                    print(k + " = " + v)
+                k = opt[0]
+                v = opt[1]
+                line = k + "=" + v + "\n"
+                print(line)
             print("")
 
 #endregion
