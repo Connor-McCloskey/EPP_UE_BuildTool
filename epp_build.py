@@ -10,8 +10,8 @@ See the ReadMe for full information.
 import os
 import subprocess
 import sys
-import configparser
 import json
+from zipfile import ZipFile
 from datetime import datetime
 
 #endregion
@@ -352,6 +352,29 @@ def write_settings_json():
     file.write(json_data)
     file.close()
 
+def make_zip():
+    platform_dir = "Windows"
+    if platform == "Linux":
+        platform_dir = "Linux"
+    elif platform == "MacOS":
+        platform_dir = "MacOS"
+
+    platform_to_zip = os.path.join(archive_path, platform_dir)
+    zip_folder = new_version + ".zip"
+    zip_path = os.path.join(archive_path, zip_folder)
+
+    # Walk the directory, and package files into a compressed zip file
+    with ZipFile(zip_path, 'w') as zip_obj:
+        for folder, subfolders, files in os.walk(platform_to_zip):
+            for f in files:
+                file_path = os.path.join(folder, f)
+                zip_obj.write(file_path, os.path.basename(file_path))
+
+    if os.path.exists(zip_path):
+        print(">>>>> Made zip file: " + zip_path)
+    else:
+        print(">>>>> ERROR - unable to create zip file: " + zip_path)
+
 def make_build():
 
     print("")
@@ -385,6 +408,8 @@ def make_build():
         result = subprocess.run(build_command, shell=True, check=True)
         print("")
         print(">>>>> PACKAGING DONE! Return code: ", result.returncode)
+        print(">>>>> Packaging build into ZIP...")
+        make_zip()
         exit_tool(0)
     except subprocess.CalledProcessError as e:
         print("")
