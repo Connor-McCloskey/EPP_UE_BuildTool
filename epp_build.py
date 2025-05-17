@@ -12,6 +12,7 @@ import subprocess
 import sys
 import json
 from zipfile import ZipFile
+import shutil
 from datetime import datetime
 
 #endregion
@@ -353,27 +354,9 @@ def write_settings_json():
     file.close()
 
 def make_zip():
-    platform_dir = "Windows"
-    if platform == "Linux":
-        platform_dir = "Linux"
-    elif platform == "MacOS":
-        platform_dir = "MacOS"
-
-    platform_to_zip = os.path.join(archive_path, platform_dir)
-    zip_folder = new_version + ".zip"
-    zip_path = os.path.join(archive_path, zip_folder)
-
-    # Walk the directory, and package files into a compressed zip file
-    with ZipFile(zip_path, 'w') as zip_obj:
-        for folder, subfolders, files in os.walk(platform_to_zip):
-            for f in files:
-                file_path = os.path.join(folder, f)
-                zip_obj.write(file_path, os.path.basename(file_path))
-
-    if os.path.exists(zip_path):
-        print(">>>>> Made zip file: " + zip_path)
-    else:
-        print(">>>>> ERROR - unable to create zip file: " + zip_path)
+    zip_result = shutil.make_archive(archive_path, 'zip', archive_path)
+    final = shutil.move(zip_result, archive_path)
+    print(">>>>>> ZIP result: " + final)
 
 def make_build():
 
