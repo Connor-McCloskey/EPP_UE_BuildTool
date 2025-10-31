@@ -347,7 +347,7 @@ def write_settings_json():
         "updategame": update_ue_config
     }
 
-    json_data = json.dumps(new_settings)
+    json_data = json.dumps(new_settings, indent=4)
 
     file = open(settings_file_name, "w")
     file.write(json_data)
