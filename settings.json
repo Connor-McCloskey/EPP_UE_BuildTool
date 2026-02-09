@@ -1,0 +1,11 @@
+{
+    "projectpath": "/Users/tolson/Documents/GitHub/EPP_DesertBird",
+    "projectname": "BossExchange",
+    "enginepath": "/Users/Shared/Epic\\ Games/UE_5.6",
+    "buildpath": "/Users/tolson/Documents/UnrealProjects",
+    "buildconfig": "Development",
+    "cookcommand": "BuildCookRun",
+    "buildplatform": "Mac",
+    "updategame": false,
+    "architecture": "arm64"
+}

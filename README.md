@@ -50,10 +50,11 @@ Should your team wish to use a different naming convention, you will need to cha
 * `projectname` - Set the game project name (name of your .uproject file)
 * `projectpath` - Set the game's project path (path where your .uproject file exists)
 * `buildpath` - Set path of where to archive the packaged game (path where the build goes!)
-* `platform` - Set the platform to build for (by default set to Win64)
+* `buildplatform` - Set the platform to build for (by default set to Win64)
 * `cookcommand` - Specify the cook command to use (by default uses BuildCookRun)
+* `architecture` - Specify the architecture(s) to build for ('x86_64', 'arm64', or 'arm64+x86_64')
 
 ## Examples
 * `python epp_build.py helpme` - Display helpme info
-* `python epp_build.py platform Linux` - Run a build, targeting Linux
+* `python epp_build.py buildplatform Linux` - Run a build, targeting Linux
 * `python epp_build.py savesettings true cookcommand BuildCookRun projectpath "D:\My Game Projects\Example Project"` - Run a build, saving the inputted settings for the future
