@@ -8,6 +8,7 @@ See the ReadMe for full information.
 #region --- Imports ---
 
 import os
+import platform
 import subprocess
 import sys
 import json
@@ -28,9 +29,10 @@ project_path:       str = "D:\\MyGameProjects\\MyGame"                  # Path t
 builds_path:        str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
 engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
 build_config:       str = "Development"                                 # Desired build config (DebugGame, Development, or Shipping)
-platform:           str = "Win64"                                       # Desired platform
+build_platform:     str = "Win64"                                       # Desired platform
 cook_command:       str = "BuildCookRun"                                # Specific cook command
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
+architecture:      str = "x86_64"
 
 #endregion
 
@@ -44,7 +46,9 @@ uat_path:           str = ""    # Generated path to the RunUAT batch file
 
 #region - Constants -
 
-uat_path_base:      str = "Engine\\Build\\BatchFiles\\RunUAT.bat"           # Path to your Unreal Engine installation's RunUAT batch file
+uat_path_base_win:  str = "Engine\\Build\\BatchFiles\\RunUAT.bat"           # Sub path to UE's RunUAT batch file
+uat_path_base_mac:  str = "Engine/Build/BatchFiles/RunUAT.command"          # Sub path to UE's RunUAT command file
+uat_path_base_linux:str = "Engine/Build/BatchFiles/RunUAT.sh"               # Sub path to UE's RunUAT shell file
 version_section:    str = "/Script/EngineSettings.GeneralProjectSettings"   # Game version section in UE DefaultGame config file
 build_config_name:  dict = {
     "Development":  "dev",
@@ -211,9 +215,9 @@ def set_cook_command(cmd: str):
     global cook_command
     cook_command = cmd
 
-def set_platform(p: str):
-    global platform
-    platform = p
+def set_build_platform(p: str):
+    global build_platform
+    build_platform = p
 
 def set_engine_path(path: str):
     global engine_path
@@ -224,6 +228,10 @@ def set_update_ue_flag(flag: bool):
     global update_ue_config
     update_ue_config = flag
 
+def set_architecture(arch: str):
+    global architecture
+    architecture = arch
+
 def print_settings():
     print(">> Set project name:        ", project_name)
     print(">> Set project path:        ", project_path)
@@ -231,12 +239,18 @@ def print_settings():
     print(">> Set build path to:       ", builds_path)
     print(">> Set build configuration: ", build_config)
     print(">> Set cook command:        ", cook_command)
-    print(">> Set platform:            ", platform)
+    print(">> Set build platform:      ", build_platform)
     print(">> Update UE config file?   ", update_ue_config)
+    print(">> Set architecture:        ", architecture)
 
 def construct_uat_path():
+    subpath = uat_path_base_win
+    if platform.system() == "Darwin":
+        subpath = uat_path_base_mac
+    elif platform.system() == "Linux":
+        subpath = uat_path_base_linux
     global uat_path
-    uat_path = os.path.join(engine_path, uat_path_base)
+    uat_path = os.path.join(engine_path, subpath)
 #endregion
 
 #region - Process funcs -
@@ -328,8 +342,9 @@ def read_settings_json():
     set_build_path(settings["buildpath"])
     set_build_config(settings["buildconfig"])
     set_cook_command(settings["cookcommand"])
-    set_platform(settings["platform"])
+    set_build_platform(settings["buildplatform"])
     set_update_ue_flag(settings["updategame"])
+    set_architecture(settings["architecture"])
 
 def write_settings_json():
 
@@ -343,8 +358,9 @@ def write_settings_json():
         "buildpath": builds_path,
         "buildconfig": build_config,
         "cookcommand": cook_command,
-        "platform": platform,
-        "updategame": update_ue_config
+        "buildplatform": build_platform,
+        "updategame": update_ue_config,
+        "architecture": architecture
     }
 
     json_data = json.dumps(new_settings, indent=4)
@@ -367,13 +383,14 @@ def make_build():
         update_version()
 
     make_archive_path()
-
     build_command = [
         uat_path,
         cook_command,
         f"-project={os.path.join(project_path, f'{project_name}.uproject')}",
         "-noP4",
-        f"-platform={platform}",
+        f"-platform={build_platform}",
+        f"-specifiedarchitecture={architecture}",
+        "-client",
         f"-clientconfig={build_config}",
         "-cook",
         "-build",
@@ -415,8 +432,9 @@ def helpme():
         projectname             Set the game project name (name of your .uproject file)
         projectpath             Set the game's project path (path where your .uproject file exists)
         buildpath               Set path of where to archive the packaged game (path where the build goes!)
-        platform                Set the platform to build for (by default set to Win64)
+        buildplatform           Set the platform to build for (by default set to Win64)
         cookcommand             Specify the cook command to use (by default uses BuildCookRun)
+        architecture            Specify which architecture(s) to build for ('x86_64', 'arm64', or 'arm64+x86_64')
     *******************************
     """)
 
@@ -449,8 +467,9 @@ def process_args():
         "projectname",
         "projectpath",
         "buildpath",
-        "platform",
-        "cookcommand"
+        "buildplatform",
+        "cookcommand",
+        "architecture",
     ]
 
     # Go through the array of sys args and sort them into key-value pairs for ease-of-use
@@ -459,7 +478,7 @@ def process_args():
     while index < num_args - 1:
         key = sys.argv[index].lower()
         if key not in valid_args:
-            print("!!! WARNING !!! Invalid argument! Use 'helpme' for a list of all valid commands!")
+            print("!!! WARNING !!! Invalid argument: '" + key + "'. Use 'helpme' for a list of all valid commands!")
             exit_tool(0)
         if key == "helpme":
             helpme()
@@ -522,16 +541,21 @@ def process_args():
         v = sorted_args["cookcommand"]
         set_cook_command(v)
 
-    # Set platform
-    if "platform" in sorted_args:
-        v = sorted_args["platform"]
-        set_platform(v)
+    # Set build platform
+    if "buildplatform" in sorted_args:
+        v = sorted_args["buildplatform"]
+        set_build_platform(v)
 
     # Flag for updating UE config file
     if "updategame" in sorted_args:
         v = sorted_args["updategame"]
         if v.lower() == "false":
             set_update_ue_flag(False)
+
+    # Set build architecture(s)
+    if "architecture" in sorted_args:
+        v = sorted_args["architecture"]
+        set_architecture(v)
 
     # Now, if we were told to only update the settings, return and exit. Else, make the build!
     if update_settings_only:
