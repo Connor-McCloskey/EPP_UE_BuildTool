@@ -24,38 +24,38 @@ from datetime import datetime
 
 """ TODO - Change these for your project! Can also be set via command line args """
 
-project_name:       str = "MyGame"                                      # Uproject file name
-project_path:       str = "D:\\MyGameProjects\\MyGame"                  # Path to the project file
-builds_path:        str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
-engine_path:        str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
-build_config:       str = "Development"                                 # Desired build config (DebugGame, Development, or Shipping)
-build_platform:     str = "Win64"                                       # Desired platform
-cook_command:       str = "BuildCookRun"                                # Specific cook command
-update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
-architecture:       str = "x86_64"
+project_name:           str = "MyGame"                                      # Uproject file name
+project_path:           str = "D:\\MyGameProjects\\MyGame"                  # Path to the project file
+builds_path:            str = "D:\\MyGameProjects\\Builds\\MyGameBuilds"    # Directory where you wish builds to be archived at
+engine_path:            str = "C:\\Program Files\\Epic Games\\UE_5.4"       # Path to your desired Unreal Engine version
+build_config:           str = "Development"                                 # Desired build config (DebugGame, Development, or Shipping)
+build_platform:         str = "Win64"                                       # Desired platform
+cook_command:           str = "BuildCookRun"                                # Specific cook command
+update_ue_config:       bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
+architecture:           str = "x86_64"
 
 #endregion
 
 #region - Generated -
 
-new_version:        str = ""    # New version name
-archive_path:       str = ""    # Generated directory where the packaged project should be placed
-uat_path:           str = ""    # Generated path to the RunUAT batch file
+new_version:            str = ""    # New version name
+archive_path:           str = ""    # Generated directory where the packaged project should be placed
+uat_path:               str = ""    # Generated path to the RunUAT batch file
 
 #endregion
 
 #region - Constants -
 
-uat_path_base_win:  str = "Engine\\Build\\BatchFiles\\RunUAT.bat"           # Sub path to UE's RunUAT batch file
-uat_path_base_mac:  str = "Engine/Build/BatchFiles/RunUAT.command"          # Sub path to UE's RunUAT command file
-uat_path_base_linux:str = "Engine/Build/BatchFiles/RunUAT.sh"               # Sub path to UE's RunUAT shell file
-version_section:    str = "/Script/EngineSettings.GeneralProjectSettings"   # Game version section in UE DefaultGame config file
-build_config_name:  dict = {
-    "Development":  "dev",
-    "DebugGame":    "debug",
-    "Shipping":     "shipping"
+uat_path_base_win:      str = "Engine\\Build\\BatchFiles\\RunUAT.bat"           # Sub path to UE's RunUAT batch file
+uat_path_base_mac:      str = "Engine/Build/BatchFiles/RunUAT.command"          # Sub path to UE's RunUAT command file
+uat_path_base_linux:    str = "Engine/Build/BatchFiles/RunUAT.sh"               # Sub path to UE's RunUAT shell file
+version_section:        str = "/Script/EngineSettings.GeneralProjectSettings"   # Game version section in UE DefaultGame config file
+build_config_name:      dict = {
+    "Development":      "dev",
+    "DebugGame":        "debug",
+    "Shipping":         "shipping"
 }
-settings_file_name: str = "settings.json"
+settings_file_name:     str = "settings.json"
 
 #endregion
 
