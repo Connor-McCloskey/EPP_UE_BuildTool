@@ -32,7 +32,7 @@ build_config:       str = "Development"                                 # Desire
 build_platform:     str = "Win64"                                       # Desired platform
 cook_command:       str = "BuildCookRun"                                # Specific cook command
 update_ue_config:   bool = True                                         # Specifies if we should update the UE DefaultGame config file's project version field
-architecture:      str = "x86_64"
+architecture:       str = "x86_64"
 
 #endregion
 
@@ -390,7 +390,6 @@ def make_build():
         "-noP4",
         f"-platform={build_platform}",
         f"-specifiedarchitecture={architecture}",
-        "-client",
         f"-clientconfig={build_config}",
         "-cook",
         "-build",
@@ -399,6 +398,9 @@ def make_build():
         "-archive",
         f"-archivedirectory={archive_path}"
     ]
+
+    if build_platform != "Win64":
+        build_command.append("-client")
 
     print("")
     print(">>>>> Packaging game...")
